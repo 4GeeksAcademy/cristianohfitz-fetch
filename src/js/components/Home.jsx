@@ -7,15 +7,14 @@ const Home = () => {
   ]);
   const [newTodo, setNewTodo] = useState("");
   const API_URL = "https://playground.4geeks.com/todo/users/cristiano123";
-
  
   useEffect(() => {
     const UserExists = async () => {
       let response = await fetch("https://playground.4geeks.com/todo/users/cristiano123");
-      let data = await response.json();
-
-
-      if (data.slug !== "cristiano123") {
+      // let data = await response.json();
+      // if (data.slug !== "cristiano123") 
+        if (response.status ===404)
+        {
    
         await fetch("https://playground.4geeks.com/todo/users/cristiano123", {
           method: "POST",
@@ -34,8 +33,8 @@ const Home = () => {
       let data = await response.json();
       console.log("Fetched data:", data);
 
-      if (Array.isArray(data)) {
-        setTodos(data);
+      if (Array.isArray(data.todos)) {
+        setTodos(data.todos);
       }
     };
 
