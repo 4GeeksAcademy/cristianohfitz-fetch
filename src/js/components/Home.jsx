@@ -3,12 +3,20 @@ import React, { useState, useEffect } from "react";
 //create your first component
 const Home = () => {
   const [todos, setTodos] = useState([
-  
   ]);
   const [newTodo, setNewTodo] = useState("");
   const API_URL = "https://playground.4geeks.com/todo/users/cristiano123";
  
   useEffect(() => {
+      const fetchTodos = async () => {
+      let response = await fetch(API_URL);
+      let data = await response.json();
+      console.log("Fetched data:", data);
+
+      if (Array.isArray(data.todos)) {
+        setTodos(data.todos);
+      }
+    };
     const UserExists = async () => {
       let response = await fetch("https://playground.4geeks.com/todo/users/cristiano123");
       // let data = await response.json();
@@ -28,52 +36,54 @@ const Home = () => {
       fetchTodos();
     };
 
-    const fetchTodos = async () => {
-      let response = await fetch(API_URL);
-      let data = await response.json();
-      console.log("Fetched data:", data);
-
-      if (Array.isArray(data.todos)) {
-        setTodos(data.todos);
-      }
-    };
-
     UserExists();
   }, []);
 
   const addTodo = async (e) => {
     e.preventDefault();
     if (newTodo.trim() !== "") {
-      let updatedTodos = [...todos, { label: newTodo, done: false }];
-      setTodos(updatedTodos);
-      setNewTodo("");
+      let updatedTodos = { label: newTodo, done: false };
 
-      await fetch("https://playground.4geeks.com/todo/users/cristiano123", {
-        method: "PUT",
+      await fetch("https://playground.4geeks.com/todo/todos/cristiano123" , {
+        method: "POST",
         body: JSON.stringify(updatedTodos),
         headers: { "Content-Type": "application/json" },
-      });
+      })
+      .then((response)=>{
+        if (response.ok) {
+          setTodos([...todos, updatedTodos]);
+          setNewTodo("");
+        } else {
+          console.error("fail to add", response.status)
+        }
+      })
+      .catch((error)=>{
+        console.error("problem adding", error)
+      })
     }
   };
 
-  const removeTodo = async (index) => {
-    let updatedTodos = todos.filter((_, i) => i !== index);
-    setTodos(updatedTodos);
+  const removeTodo = (index) => {
+    const deleteTodo= todos[index]
 
-    await fetch("https://playground.4geeks.com/todo/users/cristiano123", {
-      method: "PUT",
-      body: JSON.stringify(updatedTodos),
-      headers: { "Content-Type": "application/json" },
-    });
-  };
-
-  const clearTodos = async () => {
-    setTodos([]);
-    await fetch("https://playground.4geeks.com/todo/users/cristiano123", {
+    fetch("https://playground.4geeks.com/todo/todos/cristiano123", {
       method: "DELETE",
+      body: JSON.stringify(deleteTodo),
       headers: { "Content-Type": "application/json" },
-    });
+    })
+    .then((response)=>{
+      if (response.ok) {
+         let updatedTodos = todos.filter((_, i) => i !== index);
+    setTodos(updatedTodos);
+      }else{ 
+        console.error ("fail to delete", response.status)
+      }
+    })
+    .catch((error)=>{
+      console.error("problem deleting", error)
+    })
   };
+
 
   return (
     <div className="todo-container">
