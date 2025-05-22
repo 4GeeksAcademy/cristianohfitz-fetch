@@ -51,11 +51,14 @@ const Home = () => {
       })
       .then((response)=>{
         if (response.ok) {
-          setTodos([...todos, updatedTodos]);
           setNewTodo("");
         } else {
           console.error("fail to add", response.status)
         }
+        return response.json()
+      })
+      .then ((todo)=>{
+        setTodos([...todos, todo]);
       })
       .catch((error)=>{
         console.error("problem adding", error)
@@ -65,10 +68,9 @@ const Home = () => {
 
   const removeTodo = (index) => {
     const deleteTodo= todos[index]
-
-    fetch("https://playground.4geeks.com/todo/todos/cristiano123", {
+    debugger
+    fetch(`https://playground.4geeks.com/todo/todos/${deleteTodo.id}`, {
       method: "DELETE",
-      body: JSON.stringify(deleteTodo),
       headers: { "Content-Type": "application/json" },
     })
     .then((response)=>{
@@ -83,7 +85,6 @@ const Home = () => {
       console.error("problem deleting", error)
     })
   };
-
 
   return (
     <div className="todo-container">
